@@ -1,0 +1,32 @@
+language: python
+sudo: false
+cache: pip
+
+addons:
+  apt:
+    sources:
+    - deadsnakes
+    packages:
+    - python3.5-dev
+
+python:
+  - 3.4
+
+services:
+  - postgresql
+  - redis-server
+
+before_script:
+  - psql -c "CREATE DATABASE viewflow;" -U postgres
+
+before_install:
+  - export DATABASE_URL=postgres://postgres@localhost/viewflow
+  - export REDIS_CACHE_URL=redis://127.0.0.1:6379/1
+
+install:
+  - pip install tox
+  - pip install coveralls
+
+script:
+  - tox -- coverage run --append --branch --source=viewflow manage.py test
+  - coveralls
